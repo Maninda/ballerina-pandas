@@ -1,12 +1,12 @@
 import ballerina/io;
 import ballerina/lang.'int as ints;
-//import ballerina/lang.'string as strings;
 
 public function main() returns error? {
     string filePath = "data.csv";
     DataFrame df = check loadCsvData(filePath);
     io:println("DataFrame content: " + df.toString());
     io:println("Median: " + (check computeMedian(df, "Age")).toString());
+    io:println("Mode: " + (check computeMode(df, "Age")).toString());
 }
 
 type DataFrame record {
@@ -49,4 +49,31 @@ function computeMedian(DataFrame df, string columnName) returns int|error {
     }
     int midPoint = (arrayLength - 1) / 2 + 1;
     return intArray[midPoint - 1];
+}
+
+function computeMode(DataFrame df, string columnName) returns int|error {
+    int[] intArray = [];
+    string[] inputArray = <string[]>df[columnName];
+    int i = 0;
+    int arrayLength = inputArray.length();
+    map<int> frequencies = {};
+    int max = 0;
+    int mode = -1;
+    while i < arrayLength {
+        intArray[i] = check ints:fromString(inputArray[i]);
+        int? existingCount = frequencies[inputArray[i]];
+        if !(existingCount is ()) {
+            existingCount += 1;
+            frequencies[inputArray[i]] = existingCount;
+            if existingCount > max {
+                max = existingCount;
+                mode = check ints:fromString(inputArray[i]);
+            }
+        } else {
+            frequencies[inputArray[i]] = 1;
+        }
+        
+        i += 1;
+    }
+    return mode;
 }
