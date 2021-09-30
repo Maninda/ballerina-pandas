@@ -5,7 +5,18 @@ public function main() returns error? {
     string filePath = "data.csv";
     DataFrame df = check loadCsvData(filePath);
     io:println("DataFrame content: " + df.toString());
+    io:println();
+    io:println("DataFrame column \"Name\" content: " + df["Name"].toString());
+    io:println();
+    float[] heights = [5.5, 5.7, 6.01, 5.4, 5.93, 5.85, 6.2];
+    addOrUpdateColumn(df, "Heights", heights);
+    io:println("DataFrame content after adding the column \"Heights\" content: " + df.toString());
+    io:println();
+    deleteColumn(df, "Heights");
+    io:println("DataFrame content after deleting the column \"Heights\" content: " + df.toString());
+    io:println();
     io:println("Median: " + (check computeMedian(df, "Age")).toString());
+    io:println();
     io:println("Mode: " + (check computeMode(df, "Age")).toString());
 }
 
@@ -17,6 +28,7 @@ type DataFrame record {
 function loadCsvData(string path) returns DataFrame|error {
 	string[][] content = check io:fileReadCsv(path, skipHeaders = 0);
     io:println("string[][]: " + content.toString());
+    io:println();
     string[] headers = content[0];
     DataFrame df = {};
 
@@ -35,6 +47,14 @@ function loadCsvData(string path) returns DataFrame|error {
         i += 1;
     }
     return df;
+}
+
+function addOrUpdateColumn(DataFrame df, string columnName, string[]|int[]|float[]|boolean[] series) {
+    df[columnName] = series;
+}
+
+function deleteColumn(DataFrame df, string columnName) {
+    _ = df.remove(columnName);
 }
 
 
@@ -72,7 +92,6 @@ function computeMode(DataFrame df, string columnName) returns int|error {
         } else {
             frequencies[inputArray[i]] = 1;
         }
-        
         i += 1;
     }
     return mode;
