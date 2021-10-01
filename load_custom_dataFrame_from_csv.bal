@@ -4,19 +4,14 @@ import ballerina/lang.'int as ints;
 public function main() returns error? {
     string filePath = "data.csv";
     DataFrame df = check loadCsvData(filePath);
-    io:println("DataFrame content: " + df.toString());
-    io:println();
-    io:println("DataFrame column \"Name\" content: " + df["Name"].toString());
-    io:println();
+    io:println("DataFrame content: " + df.toString() + "\n");
+    io:println("DataFrame column \"Name\" content: " + df["Name"].toString() + "\n");
     float[] heights = [5.5, 5.7, 6.01, 5.4, 5.93, 5.85, 6.2];
-    addOrUpdateColumn(df, "Heights", heights);
-    io:println("DataFrame content after adding the column \"Heights\" content: " + df.toString());
-    io:println();
+    addColumn(df, "Heights", heights);
+    io:println("DataFrame content after adding the column \"Heights\" content: " + df.toString() + "\n");
     deleteColumn(df, "Heights");
-    io:println("DataFrame content after deleting the column \"Heights\" content: " + df.toString());
-    io:println();
-    io:println("Median: " + (check computeMedian(df, "Age")).toString());
-    io:println();
+    io:println("DataFrame content after deleting the column \"Heights\" content: " + df.toString() + "\n");
+    io:println("Median: " + (check computeMedian(df, "Age")).toString() + "\n");
     io:println("Mode: " + (check computeMode(df, "Age")).toString());
 }
 
@@ -27,8 +22,7 @@ type DataFrame record {
 
 function loadCsvData(string path) returns DataFrame|error {
 	string[][] content = check io:fileReadCsv(path, skipHeaders = 0);
-    io:println("string[][]: " + content.toString());
-    io:println();
+    io:println("string[][]: " + content.toString() + "\n");
     string[] headers = content[0];
     DataFrame df = {};
 
@@ -49,13 +43,19 @@ function loadCsvData(string path) returns DataFrame|error {
     return df;
 }
 
-function addOrUpdateColumn(DataFrame df, string columnName, string[]|int[]|float[]|boolean[] series) {
+function addColumn(DataFrame df, string columnName, string[]|int[]|float[]|boolean[] series) {
     df[columnName] = series;
 }
 
 function deleteColumn(DataFrame df, string columnName) {
     _ = df.remove(columnName);
 }
+
+// function addRow(DataFrame df, (string|int|float|boolean)[] tuple) {
+//     foreach [string, anydata] column in df.entries() {
+        
+//     }
+// }
 
 
 function computeMedian(DataFrame df, string columnName) returns int|error {
@@ -67,6 +67,7 @@ function computeMedian(DataFrame df, string columnName) returns int|error {
         intArray[i] = check ints:fromString(inputArray[i]);
         i += 1;
     }
+    bubbleSort(intArray);
     int midPoint = (arrayLength - 1) / 2 + 1;
     return intArray[midPoint - 1];
 }
@@ -96,3 +97,21 @@ function computeMode(DataFrame df, string columnName) returns int|error {
     }
     return mode;
 }
+
+function bubbleSort(int[] arr) {
+    int n = arr.length();
+    int i = 0;
+    while i < n -1 {
+        int j = 0;
+        while j < n - i - 1 {
+            if arr[j] > arr[j+1] {
+                // swap arr[j+1] and arr[j]
+                int temp = arr[j];
+                arr[j] = arr[j+1];
+                arr[j+1] = temp;
+            }
+            j += 1;
+        }
+        i += 1;
+    }
+ }
